@@ -1,0 +1,21 @@
+version: '3'
+services:
+  login:
+    build: ./login
+    ports:
+      - "8001:8001"
+  
+  productos:
+    build: ./productos
+    ports:
+      - "8002:8002"
+  
+  carrito:
+    build: ./carrito
+    ports:
+      - "8003:8003"
+
+  pedido:
+    build: ./pedido
+    ports:
+      - "8004:8004"
