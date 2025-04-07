@@ -1,5 +1,4 @@
-fastapi
-pydantic
-uvicorn
-requests
-pymysql
+fastapi==0.115.12
+pydantic==2.11.2
+PyMySQL==1.1.1
+python_jose==3.4.0
