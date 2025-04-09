@@ -24,6 +24,7 @@ class Libro(BaseModel):
     iva: float
     ventas: int
     categoria_id: int 
+    imagen: str
 
 # Función para verificar el token generado en login y el rol del usuario
 def get_current_user(token: str = Depends(oauth2_scheme)):
@@ -58,25 +59,23 @@ def crear_libro(libro: Libro, user: dict = Depends(admin_required)):
             if not categoria:
                 raise HTTPException(status_code=404, detail="Categoría no encontrada")
 
-            # Insertar el nuevo libro
             sql_libro = """
-                INSERT INTO libros (titulo, descripcion, precio, iva, ventas)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO libros (titulo, descripcion, precio, iva, ventas, imagen)
+                VALUES (%s, %s, %s, %s, %s, %s)
             """
             valores_libro = (
                 libro.titulo,
                 libro.descripcion,
                 libro.precio,
                 libro.iva,
-                libro.ventas
+                libro.ventas,
+                libro.imagen
             )
             cursor.execute(sql_libro, valores_libro)
             conexion.commit()
-
-            # Obtener el ID del libro recién creado
+            
             libro_id = cursor.lastrowid
-
-            # Insertar en la tabla libro_categoria
+            
             sql_libro_categoria = """
                 INSERT INTO libro_categoria (libro_id, categoria_id)
                 VALUES (%s, %s)

@@ -1,62 +1,87 @@
-const API_URL = "http://localhost:8000";
-const token = localStorage.getItem("token"); // Asumo que guardaste el token en localStorage al iniciar sesión
+const API_CARRITO_URL = "http://localhost:8004/carrito";
+const API_EDITAR_URL = "http://localhost:8004/carrito/editar";
+const API_ELIMINAR_URL = "http://localhost:8004/carrito/eliminar";
+const API_COMPRA_URL = "http://localhost:8004/carrito/realizar_compra";
 
-if (!token) {
-  alert("Debes iniciar sesión primero.");
-  window.location.href = "/login.html"; // Redirigir al login si no hay token
-}
+const token = JSON.parse(localStorage.getItem("usuario"))?.token;
 
 async function cargarCarrito() {
-  const res = await fetch(`${API_URL}/carrito`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  const data = await res.json();
-  
-  const carritoDiv = document.getElementById("carrito-lista");
-  carritoDiv.innerHTML = ""; // Limpiar
-
-  if (data.carrito.length === 0) {
-    carritoDiv.innerHTML = "<p>Tu carrito está vacío 🛒</p>";
-  } else {
-    data.carrito.forEach(item => {
-      const itemDiv = document.createElement("div");
-      itemDiv.className = "carrito-item";
-
-      itemDiv.innerHTML = `
-        <h3>${item.titulo}</h3>
-        <p>Cantidad: ${item.cantidad}</p>
-        <p>Precio Total: $${item.precio_total.toFixed(2)}</p>
-        <div class="acciones">
-          <button onclick="editarCantidad(${item.libro_id})">Editar</button>
-          <button onclick="eliminarProducto(${item.libro_id})">Eliminar</button>
-        </div>
-      `;
-
-      carritoDiv.appendChild(itemDiv);
-    });
+  if (!token) {
+    alert("Debes iniciar sesión primero");
+    window.location.href = "./login.html";
+    return;
   }
 
-  document.getElementById("total-precio").textContent = data.precio_final;
+  try {
+    const response = await fetch(API_CARRITO_URL, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Fallo al obtener el carrito");
+    }
+
+    const data = await response.json();
+    const { carrito, precio_final } = data;
+
+    const contenedor = document.getElementById("carrito-container");
+    const resumen = document.querySelector(".resumen-compra");
+    contenedor.innerHTML = "";
+
+    if (carrito.length === 0) {
+      contenedor.innerHTML = "<p>No tienes productos en el carrito.</p>";
+      resumen.innerHTML = "";
+      return;
+    }
+
+    carrito.forEach(item => {
+      const tarjeta = document.createElement("div");
+      tarjeta.className = "libro-card";
+      tarjeta.innerHTML = `
+        <img src="${item.imagen || './placeholder.jpg'}" alt="${item.titulo}" style="width:100px; height:150px;">
+        <h3>${item.titulo}</h3>
+        <p>Total: $${item.precio_total.toFixed(2)}</p>
+        <input type="number" min="1" value="${item.cantidad}" onchange="editarCantidad(${item.libro_id}, this.value)" />
+        <button onclick="eliminarProducto(${item.libro_id})">Eliminar</button>
+      `;
+      contenedor.appendChild(tarjeta);
+    });
+
+    resumen.innerHTML = `
+      <h2>Resumen de Compra</h2>
+      <p><strong>Total:</strong> $${precio_final.toFixed(2)}</p>
+      <button onclick="realizarCompra()">Finalizar Compra</button>
+    `;
+  } catch (error) {
+    console.error("Error al cargar el carrito:", error);
+    alert("No se pudo cargar el carrito.");
+  }
 }
 
-async function editarCantidad(libroId) {
-  const nuevaCantidad = prompt("¿Nueva cantidad?");
-  if (nuevaCantidad && nuevaCantidad > 0) {
-    await fetch(`${API_URL}/carrito/editar`, {
+async function editarCantidad(libroId, nuevaCantidad) {
+  try {
+    await fetch(API_EDITAR_URL, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ libro_id: libroId, nueva_cantidad: parseInt(nuevaCantidad) })
+      body: JSON.stringify({
+        libro_id: libroId,
+        nueva_cantidad: parseInt(nuevaCantidad)
+      })
     });
     cargarCarrito();
+  } catch (error) {
+    console.error("Error al editar cantidad:", error);
   }
 }
 
 async function eliminarProducto(libroId) {
-  if (confirm("¿Seguro que deseas eliminar este producto?")) {
-    await fetch(`${API_URL}/carrito/eliminar`, {
+  try {
+    await fetch(API_ELIMINAR_URL, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -65,24 +90,31 @@ async function eliminarProducto(libroId) {
       body: JSON.stringify({ libro_id: libroId })
     });
     cargarCarrito();
+  } catch (error) {
+    console.error("Error al eliminar producto:", error);
   }
 }
 
 async function realizarCompra() {
-  if (confirm("¿Deseas realizar la compra?")) {
-    const res = await fetch(`${API_URL}/carrito/realizar_compra`, {
+  try {
+    const response = await fetch(API_COMPRA_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
-    const data = await res.json();
-    alert(`¡Compra realizada! ID Pedido: ${data.pedido_id}\nTotal: $${data.total}`);
-    cargarCarrito(); // Recargar carrito vacío
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert(`Compra realizada exitosamente. ID del pedido: ${data.pedido_id}`);
+      cargarCarrito();
+    } else {
+      alert(data.detail || "Error al realizar la compra.");
+    }
+  } catch (error) {
+    console.error("Error al realizar compra:", error);
   }
 }
 
-document.getElementById("comprar-btn").addEventListener("click", realizarCompra);
-
-// Cargar carrito al iniciar
 cargarCarrito();

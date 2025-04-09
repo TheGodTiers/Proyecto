@@ -8,22 +8,32 @@
 <body>
   <nav>
     <div class="navbar">
-        <img class="navbar-icon" src="./assets/ECOMMERCE LOGO.png" alt="WhatsApp">
+      <img class="navbar-icon" src="./assets/images/ECOMMERCE LOGO.png" alt="Logo">
     </div>
     <div class="nav-links">
-        <a href="./categorias.html">Categorías</a>
-        <a href="./carrito.html">Carrito</a>
-        <a href="./login.html">Iniciar sesión</a>
+      <a href="./home.html">Inicio</a>
+      <a href="./carrito.html">Carrito</a>
+      <span id="nombre-usuario" style="margin-right: 10px;"></span>
+      <a href="./login.html" id="boton-sesion">Iniciar sesión</a>
     </div>
   </nav>
 
-  <section id="categorias-container">
-    <!-- Aquí se mostrarán las categorías -->
-  </section>
+  <main>
+    <div class="selector-categorias">
+      <label for="categoria-select">Selecciona una categoría:</label>
+      <select id="categoria-select">
+        <option value="">-- Selecciona una categoría --</option>
+      </select>
+    </div>
 
-  <script src="js/categorias.js"></script>
+    <section class="libros-container" id="libros-categoria-container">
+    </section>
+  </main>
+
   <footer>
     <p>&copy; 2025 Ecommerce Libros. Todos los derechos reservados.</p>
   </footer>
+
+  <script src="js/categorias.js"></script>
 </body>
 </html>

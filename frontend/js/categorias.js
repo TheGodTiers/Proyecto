@@ -1,44 +1,122 @@
+const API_CATEGORIAS_URL = "http://localhost:8003/categorias";
+const API_CARRITO_URL = "http://localhost:8004/carrito/agregar";
+const token = JSON.parse(localStorage.getItem('usuario'))?.token;
+
+let categoriasGlobal = [];
+
 async function cargarCategorias() {
+  try {
+    const response = await fetch(API_CATEGORIAS_URL);
+    const data = await response.json();
+
+    categoriasGlobal = data;
+    const select = document.getElementById("categoria-select");
+
+    data.forEach((categoria, index) => {
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = categoria.categoria;
+      select.appendChild(option);
+    });
+
+    select.addEventListener("change", () => mostrarLibrosPorCategoria(select.value));
+  } catch (error) {
+    console.error("Error al cargar categorías:", error);
+  }
+}
+
+function mostrarLibrosPorCategoria(indice) {
+  const contenedor = document.getElementById("libros-categoria-container");
+  contenedor.innerHTML = "";
+
+  if (!categoriasGlobal[indice]) return;
+
+  const libros = categoriasGlobal[indice].libros;
+
+  libros.forEach((libro, i) => {
+    const tarjeta = document.createElement("div");
+    tarjeta.className = "libro-card";
+
+    tarjeta.innerHTML = `
+      <img src="${libro.imagen}" alt="${libro.titulo}" style="width:100px; height:150px; margin-bottom:10px;">
+      <h2>${libro.titulo}</h2>
+      <p>${libro.descripcion}</p>
+      <p class="precio">$${parseFloat(libro.precio_con_iva).toFixed(2)}</p>
+      <button class="agregar-btn" onclick="agregarAlCarritoDesdeCategoria(${indice}, ${i})">
+        Agregar al Carrito
+      </button>
+    `;
+
+    contenedor.appendChild(tarjeta);
+  });
+}
+
+async function agregarAlCarritoDesdeCategoria(indiceCategoria, indiceLibro) {
+  if (!token) {
+    alert("Debes iniciar sesión primero.");
+    window.location.href = "./login.html";
+    return;
+  }
+
+  const libro = categoriasGlobal[indiceCategoria]?.libros[indiceLibro];
+  if (!libro?.id) {
+    alert("Este libro no tiene un ID válido.");
+    return;
+  }
+
+  const cantidad = prompt(`¿Cuántos deseas agregar de "${libro.titulo}"?`);
+  if (cantidad && parseInt(cantidad) > 0) {
     try {
-      const response = await fetch('http://localhost:8003/categorias');
-      if (!response.ok) {
-        throw new Error('Error al obtener categorías: ' + response.statusText);
-      }
-      const categorias = await response.json();
-      const contenedor = document.getElementById('categorias-container');
-  
-      categorias.forEach(categoria => {
-        const tarjeta = document.createElement('div');
-        tarjeta.className = 'categoria-card';
-  
-        // Título de la categoría
-        let html = `<h2>${categoria.categoria}</h2>`;
-  
-        // Si hay libros en la categoría, los mostramos
-        if (categoria.libros && categoria.libros.length > 0) {
-          html += '<ul>';
-          categoria.libros.forEach(libro => {
-            html += `
-              <li>
-                <strong>${libro.titulo}</strong><br>
-                ${libro.descripcion}<br>
-                <span class="precio">$${libro.precio_con_iva.toFixed(2)}</span>
-              </li>
-            `;
-          });
-          html += '</ul>';
-        } else {
-          html += '<p>No hay libros en esta categoría.</p>';
-        }
-  
-        tarjeta.innerHTML = html;
-        contenedor.appendChild(tarjeta);
+      const response = await fetch(API_CARRITO_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          libro_id: libro.id,
+          cantidad: parseInt(cantidad)
+        })
       });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Producto agregado al carrito");
+      } else {
+        const detalle = typeof data.detail === "object" ? JSON.stringify(data.detail) : data.detail;
+        alert(detalle || "Error al agregar al carrito");
+      }
     } catch (error) {
-      console.error('Error al cargar categorías:', error);
+      console.error('Error al agregar al carrito:', error);
+      alert("Error de conexión con el microservicio de carrito");
     }
   }
-  
-  // Cargar las categorías al iniciar la página
-  cargarCategorias();
-  
+}
+
+function actualizarBotonSesion() {
+  const usuario = JSON.parse(localStorage.getItem('usuario'));
+  const botonSesion = document.getElementById('boton-sesion');
+  const nombreUsuario = document.getElementById('nombre-usuario');
+
+  if (usuario?.token) {
+    botonSesion.textContent = "Cerrar sesión";
+    botonSesion.href = "#";
+    botonSesion.addEventListener('click', (e) => {
+      e.preventDefault();
+      localStorage.removeItem('usuario');
+      window.location.reload();
+    });
+
+    if (usuario.username) {
+      nombreUsuario.textContent = `Hola, ${usuario.username}`;
+    }
+  } else {
+    botonSesion.textContent = "Iniciar sesión";
+    botonSesion.href = "./login.html";
+    nombreUsuario.textContent = "";
+  }
+}
+
+cargarCategorias();
+actualizarBotonSesion();

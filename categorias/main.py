@@ -52,7 +52,7 @@ def obtener_categorias():
 
             for cat in categorias:
                 cursor.execute("""
-                    SELECT l.titulo, l.descripcion, (l.precio + l.iva) AS precio_con_iva
+                    SELECT l.id, l.titulo, l.descripcion, (l.precio + l.iva) AS precio_con_iva, l.imagen
                     FROM libro_categoria lc
                     INNER JOIN libros l ON lc.libro_id = l.id
                     WHERE lc.categoria_id = %s

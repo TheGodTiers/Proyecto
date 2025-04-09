@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Panel de Control</title>
+  <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+  <nav>
+    <div class="navbar">
+      <img class="navbar-icon" src="./assets/images/ECOMMERCE LOGO.png" alt="Logo">
+    </div>
+    <div class="nav-links">
+      <a href="./pedidos.html">Pedidos</a>
+      <a href="http://localhost:8003/docs">Editar Categorías</a>
+      <a href="http://localhost:8002/docs">Editar Productos</a>      
+      <span id="nombre-usuario" style="margin-right: 10px;"></span>
+      <a href="./login.html" id="boton-sesion">Cerrar sesión</a>
+    </div>
+  </nav>
+
+  <section class="libros-container" id="libros-container">
+    <h2 style="text-align: center;">Bienvenido al Panel de Administración</h2>
+    <p style="text-align: center;">Aquí puedes gestionar los pedidos y editar el catálogo de libros.</p>
+  </section>
+
+  <script>
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const nombreSpan = document.getElementById("nombre-usuario");
+    const botonSesion = document.getElementById("boton-sesion");
+
+    if (usuario && usuario.username) {
+      nombreSpan.textContent = usuario.username;
+      botonSesion.textContent = "Cerrar sesión";
+      botonSesion.addEventListener("click", () => {
+        localStorage.removeItem("usuario");
+        window.location.href = "login.html";
+      });
+    } else {
+      nombreSpan.textContent = "";
+      botonSesion.textContent = "Iniciar sesión";
+    }
+  </script>
+
+  <footer>
+    <p>&copy; 2025 Ecommerce Libros. Todos los derechos reservados.</p>
+  </footer>
+</body>
+</html>

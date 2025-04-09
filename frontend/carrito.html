@@ -2,21 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Carrito de Compras</title>
+  <title>Carrito</title>
   <link rel="stylesheet" href="css/carrito.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Mi Carrito</h1>
+  <h1>Tu Carrito</h1>
 
-    <div id="carrito-lista"></div>
+  <div id="carrito-container" class="carrito-grid"></div>
 
-    <div class="carrito-footer">
-      <h2>Total: $<span id="total-precio">0</span></h2>
-      <button id="comprar-btn">Realizar Compra</button>
-    </div>
+  <div class="resumen-compra">
+    <h3>Total a pagar: $<span id="precio-final">0.00</span></h3>
+    <button onclick="realizarCompra()">Realizar compra</button>
   </div>
 
-  <script src="carrito.js"></script>
+  <script src="js/carrito.js"></script>
 </body>
 </html>

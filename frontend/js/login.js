@@ -22,15 +22,23 @@ form.addEventListener('submit', async (e) => {
 
     const data = await response.json();
 
-    if (response.ok) {
-      // Guardar usuario y token
+    if (response.ok && data.access_token) {
+      const token = data.access_token;
+      const payloadBase64 = token.split('.')[1];
+      const decodedPayload = JSON.parse(atob(payloadBase64));
+      const rol = decodedPayload.rol;
+
       localStorage.setItem('usuario', JSON.stringify({
         username: username,
-        token: data.access_token
+        token: token,
+        rol: rol
       }));
 
-      // Redirigir al Home
-      window.location.href = "index.html"; 
+      if (rol === "admin") {
+        window.location.href = "admin.html";
+      } else {
+        window.location.href = "home.html";
+      }
     } else {
       errorMessage.textContent = data.detail || "Error al iniciar sesión";
     }

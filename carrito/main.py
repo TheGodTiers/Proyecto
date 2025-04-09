@@ -100,7 +100,7 @@ def ver_carrito(user=Depends(get_current_user)):
     usuario_id = user["usuario_id"]
     with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
         sql = """
-            SELECT c.libro_id, l.titulo, ((l.precio + l.iva) * c.cantidad) as precio_total, c.cantidad 
+            SELECT c.libro_id, l.titulo, ((l.precio + l.iva) * c.cantidad) as precio_total, l.imagen, c.cantidad 
             FROM carrito c
             JOIN libros l ON c.libro_id = l.id
             WHERE c.usuario_id = %s
@@ -116,7 +116,6 @@ def ver_carrito(user=Depends(get_current_user)):
 def realizar_compra(user=Depends(get_current_user)):
     usuario_id = user["usuario_id"]
     with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
-        # Obtener productos del carrito
         sql = """
             SELECT 
                 c.libro_id, 
@@ -133,19 +132,15 @@ def realizar_compra(user=Depends(get_current_user)):
 
         if not carrito:
             raise HTTPException(status_code=400, detail="El carrito está vacío")
-
-        # Calcular total de la compra
+        
         total = sum(item["precio_total"] for item in carrito)
 
-        # Insertar en tabla pedidos
         sql = "INSERT INTO pedidos (usuario_id, fecha, total) VALUES (%s, %s, %s)"
         fecha_actual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         cursor.execute(sql, (usuario_id, fecha_actual, total))
         pedido_id = cursor.lastrowid  
 
-        # Insertar detalle del pedido y actualizar ventas de cada libro
         for item in carrito:
-            # Insertar en pedido_detalle
             sql = """
                 INSERT INTO pedido_detalle (pedido_id, libro_id, cantidad, precio_unitario, iva)
                 VALUES (%s, %s, %s, %s, %s)
@@ -157,8 +152,7 @@ def realizar_compra(user=Depends(get_current_user)):
                 item['precio'],
                 item['iva']
             ))
-
-            # Actualizar ventas en la tabla libros
+            
             sql = """
                 UPDATE libros 
                 SET ventas = ventas + %s 
@@ -166,7 +160,6 @@ def realizar_compra(user=Depends(get_current_user)):
             """
             cursor.execute(sql, (item['cantidad'], item['libro_id']))
 
-        # Vaciar carrito del usuario
         sql = "DELETE FROM carrito WHERE usuario_id = %s"
         cursor.execute(sql, (usuario_id,))
 
