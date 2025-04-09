@@ -2,7 +2,6 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from database import conexion 
-import pymysql.cursors
 from config import setup_cors
 
 app = FastAPI()
@@ -26,8 +25,7 @@ def get_current_admin(token: str = Depends(oauth2_scheme)):
 #mostrar los pedidos
 @app.get("/pedidos")
 def listar_pedidos(admin=Depends(get_current_admin)):
-    with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
-        # Obtener todos los pedidos
+    with conexion.cursor() as cursor:
         cursor.execute("SELECT * FROM pedidos")
         pedidos = cursor.fetchall()
 

@@ -51,7 +51,6 @@ def admin_required(user: dict = Depends(get_current_user)):
 def crear_libro(libro: Libro, user: dict = Depends(admin_required)):
     try:
         with conexion.cursor() as cursor:
-            # Verificar que la categoría exista
             sql_categoria = "SELECT id FROM categorias WHERE id = %s"
             cursor.execute(sql_categoria, (libro.categoria_id,))
             categoria = cursor.fetchone()

@@ -3,7 +3,6 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel
 from database import conexion
-from pymysql.cursors import DictCursor
 from config import setup_cors
 
 app = FastAPI()
@@ -44,7 +43,7 @@ def admin_required(user: dict = Depends(get_current_user)):
 @app.get("/categorias")
 def obtener_categorias():
     try:
-        with conexion.cursor(DictCursor) as cursor:
+        with conexion.cursor() as cursor:
             cursor.execute("SELECT id, categoria FROM categorias")
             categorias = cursor.fetchall()
 

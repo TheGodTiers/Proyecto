@@ -3,7 +3,6 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from jose import jwt, JWTError
 from database import conexion
-import pymysql.cursors
 from datetime import datetime
 from config import setup_cors
 
@@ -44,7 +43,7 @@ class CarritoDelete(BaseModel):
 @app.post("/carrito/agregar")
 def agregar_producto(item: CarritoItem, user=Depends(get_current_user)):
     usuario_id = user["usuario_id"]
-    with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+    with conexion.cursor() as cursor:
         sql = "SELECT * FROM carrito WHERE usuario_id=%s AND libro_id=%s"
         cursor.execute(sql, (usuario_id, item.libro_id))
         existing_item = cursor.fetchone()
@@ -64,7 +63,7 @@ def agregar_producto(item: CarritoItem, user=Depends(get_current_user)):
 @app.put("/carrito/editar")
 def editar_cantidad(update: CarritoUpdate, user=Depends(get_current_user)):
     usuario_id = user["usuario_id"]
-    with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+    with conexion.cursor() as cursor:
         sql = "SELECT * FROM carrito WHERE usuario_id=%s AND libro_id=%s"
         cursor.execute(sql, (usuario_id, update.libro_id))
         existing_item = cursor.fetchone()
@@ -81,7 +80,7 @@ def editar_cantidad(update: CarritoUpdate, user=Depends(get_current_user)):
 @app.delete("/carrito/eliminar")
 def eliminar_producto(delete: CarritoDelete, user=Depends(get_current_user)):
     usuario_id = user["usuario_id"]
-    with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+    with conexion.cursor() as cursor:
         sql = "SELECT * FROM carrito WHERE usuario_id=%s AND libro_id=%s"
         cursor.execute(sql, (usuario_id, delete.libro_id))
         existing_item = cursor.fetchone()
@@ -98,7 +97,7 @@ def eliminar_producto(delete: CarritoDelete, user=Depends(get_current_user)):
 @app.get("/carrito")
 def ver_carrito(user=Depends(get_current_user)):
     usuario_id = user["usuario_id"]
-    with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+    with conexion.cursor() as cursor:
         sql = """
             SELECT c.libro_id, l.titulo, ((l.precio + l.iva) * c.cantidad) as precio_total, l.imagen, c.cantidad 
             FROM carrito c
@@ -115,7 +114,7 @@ def ver_carrito(user=Depends(get_current_user)):
 @app.post("/carrito/realizar_compra")
 def realizar_compra(user=Depends(get_current_user)):
     usuario_id = user["usuario_id"]
-    with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+    with conexion.cursor() as cursor:
         sql = """
             SELECT 
                 c.libro_id, 
