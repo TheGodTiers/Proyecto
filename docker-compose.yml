@@ -1,21 +1,69 @@
-version: '3'
+version: "3.9"
+
 services:
   login:
-    build: ./login
+    build:
+      context: .
+      dockerfile: login/Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+
+  home:
+    build:
+      context: .
+      dockerfile: home/Dockerfile
     ports:
       - "8001:8001"
-  
-  productos:
-    build: ./productos
-    ports:
-      - "8002:8002"
-  
-  carrito:
-    build: ./carrito
-    ports:
-      - "8003:8003"
+    depends_on:
+      - mysql
 
-  pedido:
-    build: ./pedido
+  carrito:
+    build:
+      context: .
+      dockerfile: carrito/Dockerfile
     ports:
       - "8004:8004"
+    depends_on:
+      - mysql
+
+  pedido:
+    build:
+      context: .
+      dockerfile: pedido/Dockerfile
+    ports:
+      - "8005:8005"
+    depends_on:
+      - mysql
+
+  categorias:
+    build:
+      context: .
+      dockerfile: categorias/Dockerfile
+    ports:
+      - "8003:8003"
+    depends_on:
+      - mysql
+
+  productos:
+    build:
+      context: .
+      dockerfile: productos/Dockerfile
+    ports:
+      - "8002:8002"
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Robin#707+
+      MYSQL_DATABASE: ecommercedb
+    ports:
+      - "3396:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:

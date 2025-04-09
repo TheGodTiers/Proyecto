@@ -1,0 +1,42 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+  }
+  
+  header {
+    background-color: #343a40;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  #pedidos-container {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .pedido {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .pedido h2 {
+    margin-top: 0;
+    color: #343a40;
+  }
+  
+  .detalles {
+    margin-top: 15px;
+  }
+  
+  .detalles p {
+    margin: 5px 0;
+  }
+  

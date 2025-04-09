@@ -1,0 +1,63 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #343a40;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.libros-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+.libro-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  width: 250px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.libro-card h2 {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.libro-card p {
+  font-size: 1em;
+  color: #555;
+}
+
+.precio {
+  font-weight: bold;
+  color: #28a745;
+  margin-top: 10px;
+}
+
+.agregar-btn {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.agregar-btn:hover {
+  background-color: #138496;
+}

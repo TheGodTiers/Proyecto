@@ -3,14 +3,17 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from jose import jwt, JWTError
 from database import conexion
+from config import setup_cors
 
 app = FastAPI()
+
+setup_cors(app)
 
 # Configuración del token
 SECRET_KEY = "Robin#707+"
 ALGORITHM = "HS256"
 
-# OAuth2: URL del login (microservicio de autenticación)
+# URL del login (microservicio de autenticación)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8000/token")
 
 # Modelo para crear un Libro
@@ -22,7 +25,7 @@ class Libro(BaseModel):
     ventas: int
     categoria_id: int 
 
-# Función para verificar el token y rol
+# Función para verificar el token generado en login y el rol del usuario
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -36,7 +39,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido o expirado")
 
-# Middleware de autorización para admin
+# autorización para admin
 def admin_required(user: dict = Depends(get_current_user)):
     if user["rol"] != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permisos para esta acción")

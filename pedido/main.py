@@ -1,15 +1,19 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
-from database import conexion  # Asegúrate de que este archivo tenga la conexión MySQL
+from database import conexion 
 import pymysql.cursors
+from config import setup_cors
 
 app = FastAPI()
+
+setup_cors(app)
 
 SECRET_KEY = "Robin#707+"
 ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8000/token")
 
+#funcion para restringir funciones a los no admin
 def get_current_admin(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -19,6 +23,7 @@ def get_current_admin(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise HTTPException(status_code=401, detail="Token inválido o expirado")
 
+#mostrar los pedidos
 @app.get("/pedidos")
 def listar_pedidos(admin=Depends(get_current_admin)):
     with conexion.cursor(pymysql.cursors.DictCursor) as cursor:

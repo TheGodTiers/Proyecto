@@ -1,0 +1,54 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+  }
+  
+  header {
+    background-color: #343a40;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  #categorias-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .categoria-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    width: 300px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .categoria-card h2 {
+    margin: 0 0 10px;
+    font-size: 1.4em;
+    color: #333;
+    text-align: center;
+  }
+  
+  .categoria-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .categoria-card li {
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    text-align: left;
+  }
+  
+  .precio {
+    font-weight: bold;
+    color: #28a745;
+  }
+  

@@ -4,11 +4,14 @@ from jose import JWTError, jwt
 from pydantic import BaseModel
 from database import conexion
 from pymysql.cursors import DictCursor
+from config import setup_cors
 
 app = FastAPI()
 
-# Seguridad 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8000/token")  # Cambia el URL si es necesario
+setup_cors(app)
+
+# Configuracion del token
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8000/token")  
 SECRET_KEY = "Robin#707+"
 ALGORITHM = "HS256"
 
@@ -36,9 +39,6 @@ def admin_required(user: dict = Depends(get_current_user)):
             detail="No tienes permisos para realizar esta acción"
         )
     return user
-
-# ----------------------------------------------------------------
-# 🚀 Rutas públicas y protegidas:
 
 # Mostrar todas las categorías con sus libros (público)
 @app.get("/categorias")

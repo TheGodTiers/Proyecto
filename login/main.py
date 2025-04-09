@@ -3,18 +3,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 from database import conexion 
-from fastapi.middleware.cors import CORSMiddleware
+from config import setup_cors
 
 app = FastAPI()
 
-# 🚀 Agrega este middleware después de crear `app`
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Puedes restringir luego si quieres, por ejemplo ["http://localhost:8001"]
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+setup_cors(app)
 
 # Configuración del token
 SECRET_KEY = "Robin#707+"

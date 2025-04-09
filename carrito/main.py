@@ -5,8 +5,11 @@ from jose import jwt, JWTError
 from database import conexion
 import pymysql.cursors
 from datetime import datetime
+from config import setup_cors
 
 app = FastAPI()
+
+setup_cors(app)
 
 # Configuración del token
 SECRET_KEY = "Robin#707+"
@@ -138,10 +141,11 @@ def realizar_compra(user=Depends(get_current_user)):
         sql = "INSERT INTO pedidos (usuario_id, fecha, total) VALUES (%s, %s, %s)"
         fecha_actual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         cursor.execute(sql, (usuario_id, fecha_actual, total))
-        pedido_id = cursor.lastrowid  # id del pedido recién creado
+        pedido_id = cursor.lastrowid  
 
-        # Insertar detalle del pedido
+        # Insertar detalle del pedido y actualizar ventas de cada libro
         for item in carrito:
+            # Insertar en pedido_detalle
             sql = """
                 INSERT INTO pedido_detalle (pedido_id, libro_id, cantidad, precio_unitario, iva)
                 VALUES (%s, %s, %s, %s, %s)
@@ -153,6 +157,14 @@ def realizar_compra(user=Depends(get_current_user)):
                 item['precio'],
                 item['iva']
             ))
+
+            # Actualizar ventas en la tabla libros
+            sql = """
+                UPDATE libros 
+                SET ventas = ventas + %s 
+                WHERE id = %s
+            """
+            cursor.execute(sql, (item['cantidad'], item['libro_id']))
 
         # Vaciar carrito del usuario
         sql = "DELETE FROM carrito WHERE usuario_id = %s"
